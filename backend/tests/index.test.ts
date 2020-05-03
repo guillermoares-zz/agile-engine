@@ -2,6 +2,7 @@ import axios from 'axios'
 import app from '../app'
 import Model from "../model/model";
 import Account from "../model/account";
+import TransactionType from "../model/transaction-type";
 
 describe("Account API", () => {
   const INITIAL_BALANCE = 300
@@ -30,7 +31,7 @@ describe("Account API", () => {
   })
 
   test('GET / Account balance increases after credit', async () => {
-    await client.post('/transactions', {type: 'credit', amount: 100})
+    await client.post('/transactions', {type: TransactionType.CREDIT, amount: 100})
 
     const res = await client.get('/')
 
@@ -39,7 +40,7 @@ describe("Account API", () => {
   })
 
   test('GET / Account balance decreases after debit', async () => {
-    await client.post('/transactions', {type: 'debit', amount: 100})
+    await client.post('/transactions', {type: TransactionType.DEBIT, amount: 100})
 
     const res = await client.get('/')
 

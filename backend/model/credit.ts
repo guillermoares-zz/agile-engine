@@ -1,6 +1,7 @@
 import {v4 as uuid} from 'uuid'
 import Transaction from "./transaction";
 import Account from "./account"
+import TransactionType from "./transaction-type";
 
 export default class Credit extends Transaction {
   static Of(amount: number): Credit {
@@ -8,7 +9,7 @@ export default class Credit extends Transaction {
   }
   
   type(): string {
-    return 'credit'
+    return TransactionType.CREDIT
   }
 
   applyTo(account: Account): void {

@@ -5,6 +5,7 @@ import Debit from "../model/debit";
 import isValidUUID from 'uuid-validate'
 import Model from "../model/model";
 import Account from "../model/account";
+import TransactionType from "../model/transaction-type";
 
 describe('Transactions API', () => {
   const HOST = 'localhost'
@@ -58,7 +59,7 @@ describe('Transactions API', () => {
   })
   
   test('GET /transactions/:id fetches a transaction by ID', async () => {
-    const transaction = (await client.post('/transactions', {type: 'credit', amount: 30})).data
+    const transaction = (await client.post('/transactions', {type: TransactionType.CREDIT, amount: 30})).data
     
     const res = await client.get(`/transactions/${transaction.id}`)
     
@@ -99,15 +100,15 @@ describe('Transactions API', () => {
   }
 
   test("POST /transactions commits a new transaction (credit)", async () => {
-    await testPOSTFor('credit')
+    await testPOSTFor(TransactionType.CREDIT)
   })
 
   test("POST /transactions commits a new transaction (debit)", async () => {
-    await testPOSTFor('debit')
+    await testPOSTFor(TransactionType.DEBIT)
   })
 
   test("POST /transactions fails if no amount is specified", async () => {
-    const res = await client.post('/transactions', {type: 'credit'})
+    const res = await client.post('/transactions', {type: TransactionType.CREDIT})
       .catch(err => err.response)
 
     expect(res.status).toBe(400)
@@ -123,7 +124,7 @@ describe('Transactions API', () => {
   })
 
   test("POST /transactions fails if balance is not enough for debit", async () => {
-    const res = await client.post('/transactions', {type: 'debit', amount: 1})
+    const res = await client.post('/transactions', {type: TransactionType.DEBIT, amount: 1})
       .catch(err => err.response)
 
     expect(res.status).toBe(400)
