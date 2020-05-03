@@ -3,6 +3,8 @@ import app from '../app'
 import Credit from "../model/credit";
 import Debit from "../model/debit";
 import isValidUUID from 'uuid-validate'
+import TransactionHistory from "../model/transaction-history";
+import Model from "../model/model";
 
 describe('Transactions API', () => {
   const HOST = 'localhost'
@@ -15,6 +17,7 @@ describe('Transactions API', () => {
   })
 
   beforeEach(async () => {
+    Model.TransactionHistory = new TransactionHistory()
     await new Promise(res => server = app.listen(PORT, HOST, res))
   })
 
@@ -55,4 +58,20 @@ describe('Transactions API', () => {
         expect(t.amount()).toEqual(res.data[i].amount)
       })
   })
+  
+  test('GET /transactions/:id fetches a transaction by ID', async () => {
+    const transaction = (await client.post('/transactions', {type: 'credit', amount: 30})).data
+    
+    const res = await client.get(`/transactions/${transaction.id}`)
+    
+    expect(transaction).toEqual(res.data)
+  })
+
+  test("GET /transactions/:id fails if transaction doesn't exist", async () => {
+    const res = await client.get(`/transactions/12345`)
+      .catch(err => err.response)
+
+    expect(res.data).toEqual("Transaction does not exist")
+  })
+  
 })

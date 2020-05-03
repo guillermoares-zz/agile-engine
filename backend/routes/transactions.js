@@ -24,7 +24,16 @@ router.post('/', ({body: {type, amount}}, res) => {
   
   Model.TransactionHistory.add(transaction)
   
-  res.send(200).json(transaction.asJson())
+  res.status(200).json(transaction.asJson())
+})
+
+router.get('/:id', ({params: {id}}, res) => {
+  const transaction = Model.TransactionHistory.getById(id)
+  
+  if (!transaction)
+    return res.status(400).send('Transaction does not exist')
+  
+  res.status(200).json(transaction.asJson())
 })
 
 module.exports = router;
