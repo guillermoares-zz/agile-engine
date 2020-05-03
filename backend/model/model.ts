@@ -1,7 +1,7 @@
-import TransactionHistory from "./transaction-history";
+import Account from "./account";
 
 const Model = {
-  TransactionHistory: new TransactionHistory()
+  Account: new Account()
 }
 
 export default Model

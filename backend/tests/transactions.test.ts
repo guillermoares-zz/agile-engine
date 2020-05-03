@@ -3,8 +3,8 @@ import app from '../app'
 import Credit from "../model/credit";
 import Debit from "../model/debit";
 import isValidUUID from 'uuid-validate'
-import TransactionHistory from "../model/transaction-history";
 import Model from "../model/model";
+import Account from "../model/account";
 
 describe('Transactions API', () => {
   const HOST = 'localhost'
@@ -17,7 +17,7 @@ describe('Transactions API', () => {
   })
 
   beforeEach(async () => {
-    Model.TransactionHistory = new TransactionHistory()
+    Model.Account = new Account()
     await new Promise(res => server = app.listen(PORT, HOST, res))
   })
 
@@ -38,10 +38,8 @@ describe('Transactions API', () => {
         type: t.type(),
         amount: t.amount()
       })
-        .catch(err => {console.log(err.response.data); return err.response})
     
     const res = await client.get('/transactions')
-      .catch(err => {console.log(err.response.data); return err.response})
 
     expect(res.status).toBe(200)
     expect(res.data.length).toBe(4)
@@ -73,5 +71,62 @@ describe('Transactions API', () => {
 
     expect(res.data).toEqual("Transaction does not exist")
   })
-  
+
+  async function testPOSTFor(transactionType) {
+    const body = {
+      'type': transactionType,
+      'amount': 0
+    }
+
+    let res = await client.post('/transactions', body)
+
+    expect(res.status).toBe(200)
+    expect(res.data.type).toEqual(body.type)
+    expect(res.data.amount).toEqual(body.amount)
+    expect(isValidUUID(res.data.id, 4)).toBeTruthy()
+    expect(new Date().getTime() - new Date(res.data.effectiveDate).getTime())
+      .toBeLessThan(5000)
+
+    res = await client.get('/transactions')
+
+    expect(res.status).toBe(200)
+    expect(res.data.length).toBe(1)
+    expect(res.data[0].type).toEqual(body.type)
+    expect(res.data[0].amount).toEqual(body.amount)
+    expect(isValidUUID(res.data[0].id, 4)).toBeTruthy()
+    expect(new Date().getTime() - new Date(res.data[0].effectiveDate).getTime())
+      .toBeLessThan(5000)
+  }
+
+  test("POST /transactions commits a new transaction (credit)", async () => {
+    await testPOSTFor('credit')
+  })
+
+  test("POST /transactions commits a new transaction (debit)", async () => {
+    await testPOSTFor('debit')
+  })
+
+  test("POST /transactions fails if no amount is specified", async () => {
+    const res = await client.post('/transactions', {type: 'credit'})
+      .catch(err => err.response)
+
+    expect(res.status).toBe(400)
+    expect(res.data).toEqual("Must specify an amount")
+  })
+
+  test("POST /transactions fails if no transaction type is specified", async () => {
+    const res = await client.post('/transactions', {amount: 999})
+      .catch(err => err.response)
+
+    expect(res.status).toBe(400)
+    expect(res.data).toEqual("Must specify a transaction type")
+  })
+
+  test("POST /transactions fails if balance is not enough for debit", async () => {
+    const res = await client.post('/transactions', {type: 'debit', amount: 1})
+      .catch(err => err.response)
+
+    expect(res.status).toBe(400)
+    expect(res.data).toEqual('Not enough funds')
+  })
 })

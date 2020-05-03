@@ -1,3 +1,5 @@
+import Account from './account'
+
 export default abstract class Transaction {
   protected _id: string
   protected _amount: number
@@ -31,4 +33,5 @@ export default abstract class Transaction {
   }
 
   abstract type(): string
+  abstract applyTo(account: Account): void
 }
