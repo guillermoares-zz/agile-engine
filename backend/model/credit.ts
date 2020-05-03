@@ -5,7 +5,7 @@ import TransactionType from "./transaction-type";
 
 export default class Credit extends Transaction {
   static Of(amount: number): Credit {
-    return new Credit(uuid(), amount, new Date())
+    return new Credit(uuid(), amount)
   }
   
   type(): string {

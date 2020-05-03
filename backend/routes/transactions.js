@@ -3,6 +3,12 @@ const Model = require('../model/model').default
 const Credit = require('../model/credit').default
 const Debit = require('../model/debit').default
 const TransactionType = require('../model/transaction-type').default
+const {
+  MUST_SPECIFY_AMOUNT,
+  MUST_SPECIFY_TRANSACTION_TYPE,
+  NOT_ENOUGH_FUNDS,
+  TRANSACTION_DOES_NOT_EXIST
+} = require('../constants')
 
 var router = express.Router();
 
@@ -13,7 +19,7 @@ router.get('/', (req, res) => {
 
 router.post('/', ({body: {type, amount}}, res) => {
   if (typeof amount !== 'number')
-    return res.status(400).send('Must specify an amount')
+    return res.status(400).send(MUST_SPECIFY_AMOUNT)
 
   let transaction
 
@@ -25,14 +31,16 @@ router.post('/', ({body: {type, amount}}, res) => {
       transaction = Debit.Of(amount)
       break
     default:
-      return res.status(400).send('Must specify a transaction type')
+      return res.status(400).send(MUST_SPECIFY_TRANSACTION_TYPE)
   }
 
   try {
     Model.Account.apply(transaction)
   } catch (e) {
-    if (e.message === 'Not enough funds')
-      res.status(400).send(e.message)
+    if (e.message === NOT_ENOUGH_FUNDS)
+      return res.status(400).send(e.message)
+
+    throw e
   }
 
   res.status(200).json(transaction.asJson())
@@ -40,12 +48,14 @@ router.post('/', ({body: {type, amount}}, res) => {
 
 router.get('/:id', ({params: {id}}, res) => {
   let transaction
-  
+
   try {
     transaction = Model.Account.history().getById(id)
   } catch (e) {
-    if (e.message === 'Transaction does not exist')
+    if (e.message === TRANSACTION_DOES_NOT_EXIST)
       return res.status(400).send(e.message)
+
+    throw e
   }
 
   res.status(200).json(transaction.asJson())

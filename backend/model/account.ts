@@ -1,5 +1,6 @@
 import TransactionHistory from "./transaction-history";
 import Transaction from "./transaction";
+import {NOT_ENOUGH_FUNDS} from "../constants";
 
 export default class Account {
   protected _balance: number
@@ -29,7 +30,7 @@ export default class Account {
   
   withdraw(amount: number): void {
     if (amount > this._balance)
-      throw new Error('Not enough funds')
+      throw new Error(NOT_ENOUGH_FUNDS)
     
     this._balance -= amount
   }

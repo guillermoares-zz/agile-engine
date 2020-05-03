@@ -6,6 +6,12 @@ import isValidUUID from 'uuid-validate'
 import Model from "../model/model";
 import Account from "../model/account";
 import TransactionType from "../model/transaction-type";
+import {
+  MUST_SPECIFY_AMOUNT,
+  MUST_SPECIFY_TRANSACTION_TYPE,
+  NOT_ENOUGH_FUNDS,
+  TRANSACTION_DOES_NOT_EXIST
+} from "../constants";
 
 describe('Transactions API', () => {
   const HOST = 'localhost'
@@ -70,7 +76,7 @@ describe('Transactions API', () => {
     const res = await client.get(`/transactions/12345`)
       .catch(err => err.response)
 
-    expect(res.data).toEqual("Transaction does not exist")
+    expect(res.data).toEqual(TRANSACTION_DOES_NOT_EXIST)
   })
 
   async function testPOSTFor(transactionType) {
@@ -112,7 +118,7 @@ describe('Transactions API', () => {
       .catch(err => err.response)
 
     expect(res.status).toBe(400)
-    expect(res.data).toEqual("Must specify an amount")
+    expect(res.data).toEqual(MUST_SPECIFY_AMOUNT)
   })
 
   test("POST /transactions fails if no transaction type is specified", async () => {
@@ -120,7 +126,7 @@ describe('Transactions API', () => {
       .catch(err => err.response)
 
     expect(res.status).toBe(400)
-    expect(res.data).toEqual("Must specify a transaction type")
+    expect(res.data).toEqual(MUST_SPECIFY_TRANSACTION_TYPE)
   })
 
   test("POST /transactions fails if balance is not enough for debit", async () => {
@@ -128,6 +134,6 @@ describe('Transactions API', () => {
       .catch(err => err.response)
 
     expect(res.status).toBe(400)
-    expect(res.data).toEqual('Not enough funds')
+    expect(res.data).toEqual(NOT_ENOUGH_FUNDS)
   })
 })

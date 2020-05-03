@@ -5,10 +5,9 @@ export default abstract class Transaction {
   protected _amount: number
   protected _effectiveDate: Date
 
-  protected constructor(id: string, amount: number, date: Date) {
+  protected constructor(id: string, amount: number) {
     this._id = id
     this._amount = amount
-    this._effectiveDate = date
   }
 
   id() {
@@ -23,12 +22,16 @@ export default abstract class Transaction {
     return this._effectiveDate
   }
   
+  setEffectiveDate(date: Date): void {
+    this._effectiveDate = date
+  }
+  
   asJson() {
     return {
       id: this._id,
       type: this.type(),
       amount: this._amount,
-      effectiveDate: this._effectiveDate.toString()
+      effectiveDate: this._effectiveDate && this._effectiveDate.toISOString()
     }
   }
 
