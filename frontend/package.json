@@ -19,7 +19,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "build-bins": "npx nexe -t linux-x64 ./bin/run.js -o ./bin/frontend-linux && npx nexe -t macos-x64 ./bin/run.js -o ./bin/frontend-macos && npx nexe --build 1 -t windows ./bin/run.js -o ./bin/frontend-win.exe"
+    "build-bins": "npm run build && npx nexe -r ./build -t linux-x64 ./bin/run.js -o ./bin/frontend-linux && npx nexe -r ./build -t macos-x64 ./bin/run.js -o ./bin/frontend-macos"
   },
   "eslintConfig": {
     "extends": "react-app"
