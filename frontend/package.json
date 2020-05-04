@@ -1,6 +1,7 @@
 {
   "name": "frontend",
   "version": "0.1.0",
+  "bin": "./bin/run.js",
   "private": true,
   "dependencies": {
     "@testing-library/jest-dom": "^4.2.4",
@@ -17,7 +18,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "build-bins": "npx nexe -t linux-x64 ./bin/run.js -o ./bin/frontend-linux && npx nexe -t macos-x64 ./bin/run.js -o ./bin/frontend-macos && npx nexe --build 1 -t windows ./bin/run.js -o ./bin/frontend-win.exe"
   },
   "eslintConfig": {
     "extends": "react-app"

@@ -4,7 +4,7 @@
   "private": true,
   "bin": "./bin/www",
   "scripts": {
-    "build": "npx tsc && npx pkg --out-path ./bin . && npx tsc --build --clean",
+    "build-bins": "npx tsc && npx pkg --out-path ./bin . && npx tsc --build --clean",
     "start": "npx ts-node ./bin/www",
     "test": "npx jest --runInBand ./tests"
   },
