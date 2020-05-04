@@ -1,5 +1,7 @@
 # Backend
 
+Runs on port 3000!
+
 ## Binaries
 
 Binary files are in `./backend/bin`.
