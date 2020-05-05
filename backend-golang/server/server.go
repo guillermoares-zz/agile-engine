@@ -8,7 +8,7 @@ import (
 	"net/http"
 )
 
-func StartServer(port string) (*http.Server, chan bool) {
+func StartServer(host, port string) (*http.Server, chan bool) {
 	router := mux.NewRouter()
 	setRoutes(router)
 
@@ -19,7 +19,7 @@ func StartServer(port string) (*http.Server, chan bool) {
 	// Start our server in a goroutine so that it doesn't block.
 	go func() {
 		fmt.Println("Starting server at " + port)
-		listener, err := net.Listen("tcp", "0.0.0.0:8000")
+		listener, err := net.Listen("tcp", fmt.Sprintf("%v:%v", host, port))
 		if err != nil {
 			panic(err)
 		}
@@ -36,4 +36,5 @@ func StartServer(port string) (*http.Server, chan bool) {
 
 func setRoutes(router *mux.Router) {
 	router.HandleFunc("/", routes.GetAccount).Methods("GET")
+	router.HandleFunc("/transactions", routes.GetTransactions).Methods("GET")
 }
