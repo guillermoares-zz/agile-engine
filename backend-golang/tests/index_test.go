@@ -16,6 +16,7 @@ func TestGET(t *testing.T) {
 		t.Errorf("Error sending request: %v", err)
 		return
 	}
+	defer response.Body.Close()
 
 	if response.StatusCode != http.StatusOK {
 		t.Errorf("Expected status code %v, but got %v", http.StatusOK, response.StatusCode)

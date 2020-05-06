@@ -34,5 +34,7 @@ func PostTransaction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	global.Account.Apply(transaction)
+
 	RespondWithJSON(w, http.StatusOK, transaction)
 }

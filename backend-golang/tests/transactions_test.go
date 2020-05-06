@@ -42,7 +42,7 @@ func TestPostTransaction(t *testing.T) {
 	tearDown, client := SetUp()
 	defer tearDown()
 
-	body := ToBuffer(`{"type": "credit", "amount": 30}`)
+	body := ToBuffer(fmt.Sprintf(`{"type": "%v", "amount": 30}`, model.TRANSACTION_TYPE_CREDIT))
 
 	response, err := client.Post(
 		endpoint("/transactions"),
@@ -71,8 +71,8 @@ func TestPostTransaction(t *testing.T) {
 		t.Errorf("Expected transaction id to be a valid UUID, but got \"%v\"", transaction.Id)
 	}
 
-	if transaction.Type != "credit" {
-		t.Errorf("Expected transaction type to be \"credit\", but got \"%v\"", transaction.Type)
+	if transaction.Type != model.TRANSACTION_TYPE_CREDIT {
+		t.Errorf("Expected transaction type to be \"%v\", but got \"%v\"", model.TRANSACTION_TYPE_CREDIT, transaction.Type)
 	}
 
 	if transaction.Amount != 30 {
@@ -120,7 +120,7 @@ func TestPostTransactionFailsIfAmountMissing(t *testing.T) {
 	tearDown, client := SetUp()
 	defer tearDown()
 
-	body := ToBuffer(`{"type": "credit"}`)
+	body := ToBuffer(fmt.Sprintf(`{"type": "%v"}`, model.TRANSACTION_TYPE_CREDIT))
 
 	response, err := client.Post(
 		endpoint("/transactions"),
@@ -177,5 +177,60 @@ func TestPostTransactionFailsIfBodyMalformed(t *testing.T) {
 
 	if errorResponse.Error != routes.POST_TRANSACTION_BODY_ERROR {
 		t.Errorf(`Expected error errorResponse to be "%v", but got "%v"`, routes.POST_TRANSACTION_BODY_ERROR, errorResponse)
+	}
+}
+
+func TestPostTransactionAddsTransactionsToHistory(t *testing.T) {
+	tearDown, client := SetUp()
+	defer tearDown()
+
+	body := ToBuffer(fmt.Sprintf(`{"type": "%v", "amount": 30}`, model.TRANSACTION_TYPE_CREDIT))
+
+	response, err := client.Post(
+		endpoint("/transactions"),
+		"application/json",
+		body)
+	if err != nil {
+		t.Errorf("Error sending request: %v", err)
+		return
+	}
+	defer response.Body.Close()
+
+	response, err = client.Get(
+		endpoint("/transactions"))
+	if err != nil {
+		t.Errorf("Error sending request: %v", err)
+		return
+	}
+	defer response.Body.Close()
+
+	var transactions []model.Transaction
+	err = json.NewDecoder(response.Body).Decode(&transactions)
+	if err != nil {
+		t.Errorf("Couldn't decode response body into a transaction")
+		return
+	}
+
+	if len(transactions) != 1 {
+		t.Errorf("Expected one transaction, but got %v", len(transactions))
+		return
+	}
+
+	transaction := transactions[0]
+
+	if !isValidUUID(transaction.Id) {
+		t.Errorf("Expected transaction id to be a valid UUID, but got \"%v\"", transaction.Id)
+	}
+
+	if transactions[0].Type != model.TRANSACTION_TYPE_CREDIT {
+		t.Errorf("Expected transaction type to be \"%v\", but got \"%v\"", model.TRANSACTION_TYPE_CREDIT, transaction.Type)
+	}
+
+	if transactions[0].Amount != 30 {
+		t.Errorf("Expected transaction amount to be 30, but got %v", transaction.Amount)
+	}
+
+	if time.Now().Sub(transactions[0].EffectiveDate) >= (5 * time.Second) {
+		t.Errorf("Expected transaction to had been effective within 5 seconds since now, but it was effective %v ago", transaction.EffectiveDate.Sub(time.Now()))
 	}
 }

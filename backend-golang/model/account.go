@@ -12,3 +12,7 @@ type Account struct {
 func NewAccount() *Account {
 	return &Account{Balance: INITIAL_BALANCE}
 }
+
+func (account *Account) Apply(transaction *Transaction) {
+	account.History.Add(transaction)
+}

@@ -5,6 +5,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/google/uuid"
+	"github.com/guillermoares/agile-engine/backend-golang/global"
+	"github.com/guillermoares/agile-engine/backend-golang/model"
 	"github.com/guillermoares/agile-engine/backend-golang/server"
 	"net/http"
 	"time"
@@ -14,6 +16,7 @@ var HOST = "localhost"
 var PORT = "8000"
 
 func SetUp() (func(), http.Client) {
+	global.Account = model.NewAccount()
 	svr, ready := server.StartServer(HOST, PORT)
 
 	client := http.Client{
