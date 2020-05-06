@@ -37,4 +37,5 @@ func StartServer(host, port string) (*http.Server, chan bool) {
 func setRoutes(router *mux.Router) {
 	router.HandleFunc("/", routes.GetAccount).Methods("GET")
 	router.HandleFunc("/transactions", routes.GetTransactions).Methods("GET")
+	router.HandleFunc("/transactions", routes.PostTransaction).Methods("POST")
 }

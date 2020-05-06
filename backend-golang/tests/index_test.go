@@ -2,7 +2,6 @@ package tests
 
 import (
 	"encoding/json"
-	"github.com/guillermoares/agile-engine/backend-golang/global"
 	"github.com/guillermoares/agile-engine/backend-golang/model"
 	"net/http"
 	"testing"
@@ -29,7 +28,7 @@ func TestGET(t *testing.T) {
 		return
 	}
 
-	if account.Balance != global.INITIAL_BALANCE {
-		t.Errorf("Expected account balance to be %v, but got %v", global.INITIAL_BALANCE, account.Balance)
+	if account.Balance != model.INITIAL_BALANCE {
+		t.Errorf("Expected account balance to be %v, but got %v", model.INITIAL_BALANCE, account.Balance)
 	}
 }
