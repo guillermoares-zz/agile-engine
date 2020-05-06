@@ -112,7 +112,9 @@ func TestPostTransactionFailsIfTypeMissing(t *testing.T) {
 	}
 
 	if errorResponse.Error != model.INVALID_TRANSACTION_TYPE_ERROR {
-		t.Errorf(`Expected error errorResponse to be "%v", but got "%v"`, model.INVALID_TRANSACTION_TYPE_ERROR, errorResponse)
+		t.Errorf(`Expected error errorResponse to be "%v", but got "%v"`,
+			model.INVALID_TRANSACTION_TYPE_ERROR,
+			errorResponse.Error)
 	}
 }
 
@@ -144,7 +146,9 @@ func TestPostTransactionFailsIfAmountMissing(t *testing.T) {
 	}
 
 	if errorResponse.Error != model.INVALID_TRANSACTION_AMOUNT_ERROR {
-		t.Errorf(`Expected error errorResponse to be "%v", but got "%v"`, model.INVALID_TRANSACTION_AMOUNT_ERROR, errorResponse)
+		t.Errorf(`Expected error errorResponse to be "%v", but got "%v"`,
+			model.INVALID_TRANSACTION_AMOUNT_ERROR,
+			errorResponse.Error)
 	}
 }
 
@@ -176,7 +180,9 @@ func TestPostTransactionFailsIfBodyMalformed(t *testing.T) {
 	}
 
 	if errorResponse.Error != routes.POST_TRANSACTION_BODY_ERROR {
-		t.Errorf(`Expected error errorResponse to be "%v", but got "%v"`, routes.POST_TRANSACTION_BODY_ERROR, errorResponse)
+		t.Errorf(`Expected error errorResponse to be "%v", but got "%v"`,
+			routes.POST_TRANSACTION_BODY_ERROR,
+			errorResponse.Error)
 	}
 }
 
@@ -232,5 +238,39 @@ func TestPostTransactionAddsTransactionsToHistory(t *testing.T) {
 
 	if time.Now().Sub(transactions[0].EffectiveDate) >= (5 * time.Second) {
 		t.Errorf("Expected transaction to had been effective within 5 seconds since now, but it was effective %v ago", transaction.EffectiveDate.Sub(time.Now()))
+	}
+}
+
+func TestPostTransactionFailsIfNoEnoughBalanceForDebit(t *testing.T) {
+	tearDown, client := SetUp()
+	defer tearDown()
+
+	body := ToBuffer(fmt.Sprintf(`{"type": "%v", "amount": %v}`,
+		model.TRANSACTION_TYPE_DEBIT,
+		model.INITIAL_BALANCE+10))
+
+	response, err := client.Post(
+		endpoint("/transactions"),
+		"application/json",
+		body)
+	if err != nil {
+		t.Errorf("Error sending request: %v", err)
+		return
+	}
+	defer response.Body.Close()
+
+	if response.StatusCode != http.StatusBadRequest {
+		t.Errorf("Expected status code %v, but got %v", http.StatusBadRequest, response.StatusCode)
+	}
+
+	var errorResponse struct{ Error string }
+	err = json.NewDecoder(response.Body).Decode(&errorResponse)
+	if err != nil {
+		t.Errorf("Couldn't decode response body into a errorResponse")
+		return
+	}
+
+	if errorResponse.Error != model.NOT_ENOUGH_FUNDS_ERROR {
+		t.Errorf(`Expected error errorResponse to be "%v", but got "%v"`, model.NOT_ENOUGH_FUNDS_ERROR, errorResponse.Error)
 	}
 }

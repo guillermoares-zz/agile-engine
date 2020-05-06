@@ -9,6 +9,7 @@ import (
 	"github.com/guillermoares/agile-engine/backend-golang/model"
 	"github.com/guillermoares/agile-engine/backend-golang/server"
 	"net/http"
+	"testing"
 	"time"
 )
 
@@ -47,4 +48,16 @@ func isValidUUID(id string) bool {
 	return err == nil
 }
 
-type Json map[string]interface{}
+func PostTransaction(t *testing.T, client *http.Client, tType string, amount float32) *http.Response {
+	body := ToBuffer(fmt.Sprintf(`{"type": "%v", "amount": %v}`, tType, amount))
+
+	response, err := client.Post(
+		endpoint("/transactions"),
+		"application/json",
+		body)
+	if err != nil {
+		t.Errorf("Error sending request: %v", err)
+		t.FailNow()
+	}
+	return response
+}

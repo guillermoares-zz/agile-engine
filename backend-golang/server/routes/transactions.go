@@ -28,13 +28,26 @@ func PostTransaction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	transaction, err := model.NewTransaction(body.Type, body.Amount)
-	if err != nil {
-		RespondWithError(w, http.StatusBadRequest, err.Error())
+	if body.Amount <= 0 {
+		RespondWithError(w, http.StatusBadRequest, model.INVALID_TRANSACTION_AMOUNT_ERROR)
 		return
 	}
 
-	global.Account.Apply(transaction)
+	var transaction model.AccountAppliable
+	switch body.Type {
+	case model.TRANSACTION_TYPE_CREDIT:
+		transaction = model.NewCredit(body.Amount)
+	case model.TRANSACTION_TYPE_DEBIT:
+		transaction = model.NewDebit(body.Amount)
+	default:
+		RespondWithError(w, http.StatusBadRequest, model.INVALID_TRANSACTION_TYPE_ERROR)
+		return
+	}
+
+	err = global.Account.Apply(transaction)
+	if err != nil {
+		RespondWithError(w, http.StatusBadRequest, err.Error())
+	}
 
 	RespondWithJSON(w, http.StatusOK, transaction)
 }
