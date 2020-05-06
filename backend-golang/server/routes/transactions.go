@@ -18,10 +18,16 @@ type PostTransactionBody struct {
 }
 
 func GetTransactions(w http.ResponseWriter, _ *http.Request) {
+	global.Account.RWMutex.RLock()
+	defer global.Account.RWMutex.RUnlock()
+
 	RespondWithJSON(w, http.StatusOK, global.Account.Transactions)
 }
 
 func GetTransactionById(w http.ResponseWriter, r *http.Request) {
+	global.Account.RWMutex.RLock()
+	defer global.Account.RWMutex.RUnlock()
+
 	id := mux.Vars(r)["id"]
 	transaction, err := global.Account.GetTransactionWithId(id)
 	if err != nil {

@@ -1,6 +1,9 @@
 package model
 
-import "errors"
+import (
+	"errors"
+	"sync"
+)
 
 const (
 	INITIAL_BALANCE                  float32 = 0
@@ -8,6 +11,7 @@ const (
 )
 
 type Account struct {
+	RWMutex      sync.RWMutex   `json:"-"`
 	Balance      float32        `json:"balance"`
 	Transactions []*Transaction `json:"-"`
 }
@@ -27,6 +31,9 @@ func (account Account) GetTransactionWithId(id string) (*Transaction, error) {
 }
 
 func (account *Account) Apply(transaction *Transaction) error {
+	account.RWMutex.Lock()
+	defer account.RWMutex.Unlock()
+
 	err := transaction.ApplyTo(account)
 	if err != nil {
 		return err
