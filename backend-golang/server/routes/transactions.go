@@ -2,6 +2,7 @@ package routes
 
 import (
 	"encoding/json"
+	"github.com/gorilla/mux"
 	"github.com/guillermoares/agile-engine/backend-golang/global"
 	"github.com/guillermoares/agile-engine/backend-golang/model"
 	"net/http"
@@ -17,7 +18,18 @@ type PostTransactionBody struct {
 }
 
 func GetTransactions(w http.ResponseWriter, _ *http.Request) {
-	RespondWithJSON(w, http.StatusOK, global.Account.History.Transactions)
+	RespondWithJSON(w, http.StatusOK, global.Account.Transactions)
+}
+
+func GetTransactionById(w http.ResponseWriter, r *http.Request) {
+	id := mux.Vars(r)["id"]
+	transaction, err := global.Account.GetTransactionWithId(id)
+	if err != nil {
+		RespondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	RespondWithJSON(w, http.StatusOK, transaction)
 }
 
 func PostTransaction(w http.ResponseWriter, r *http.Request) {
@@ -33,20 +45,11 @@ func PostTransaction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var transaction model.AccountAppliable
-	switch body.Type {
-	case model.TRANSACTION_TYPE_CREDIT:
-		transaction = model.NewCredit(body.Amount)
-	case model.TRANSACTION_TYPE_DEBIT:
-		transaction = model.NewDebit(body.Amount)
-	default:
-		RespondWithError(w, http.StatusBadRequest, model.INVALID_TRANSACTION_TYPE_ERROR)
-		return
-	}
-
+	transaction := model.NewTransaction(body.Type, body.Amount)
 	err = global.Account.Apply(transaction)
 	if err != nil {
 		RespondWithError(w, http.StatusBadRequest, err.Error())
+		return
 	}
 
 	RespondWithJSON(w, http.StatusOK, transaction)

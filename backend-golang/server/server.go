@@ -38,4 +38,5 @@ func setRoutes(router *mux.Router) {
 	router.HandleFunc("/", routes.GetAccount).Methods("GET")
 	router.HandleFunc("/transactions", routes.GetTransactions).Methods("GET")
 	router.HandleFunc("/transactions", routes.PostTransaction).Methods("POST")
+	router.HandleFunc("/transactions/{id}", routes.GetTransactionById).Methods("GET")
 }

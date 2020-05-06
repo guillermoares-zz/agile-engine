@@ -274,3 +274,70 @@ func TestPostTransactionFailsIfNoEnoughBalanceForDebit(t *testing.T) {
 		t.Errorf(`Expected error errorResponse to be "%v", but got "%v"`, model.NOT_ENOUGH_FUNDS_ERROR, errorResponse.Error)
 	}
 }
+
+func TestGetTransactionById(t *testing.T) {
+	tearDown, client := SetUp()
+	defer tearDown()
+
+	body := ToBuffer(fmt.Sprintf(`{"type": "%v", "amount": 30}`, model.TRANSACTION_TYPE_CREDIT))
+
+	response, err := client.Post(
+		endpoint("/transactions"),
+		"application/json",
+		body)
+	if err != nil {
+		t.Errorf("Error sending request: %v", err)
+		return
+	}
+	defer response.Body.Close()
+
+	var expectedTransaction model.Transaction
+	err = json.NewDecoder(response.Body).Decode(&expectedTransaction)
+	if err != nil {
+		t.Errorf("Couldn't decode response body into a transaction")
+		return
+	}
+
+	response, err = client.Get(endpoint("/transactions/" + expectedTransaction.Id))
+	if err != nil {
+		t.Errorf("Error sending request: %v", err)
+		return
+	}
+
+	var transaction model.Transaction
+	err = json.NewDecoder(response.Body).Decode(&transaction)
+	if err != nil {
+		t.Errorf("Couldn't decode response body into a transaction")
+		return
+	}
+
+	if expectedTransaction != transaction {
+		t.Errorf("Expected transaction to be %+v, but got %+v", expectedTransaction, transaction)
+	}
+}
+
+func TestGetTransactionByIdFailsIfTransactionDoesNotExist(t *testing.T) {
+	tearDown, client := SetUp()
+	defer tearDown()
+
+	response, err := client.Get(endpoint("/transactions/not-a-UUID"))
+	if err != nil {
+		t.Errorf("Error sending request: %v", err)
+		return
+	}
+
+	if response.StatusCode != http.StatusBadRequest {
+		t.Errorf("Expected status code %v, but got %v", http.StatusBadRequest, response.StatusCode)
+	}
+
+	var errorResponse struct{ Error string }
+	err = json.NewDecoder(response.Body).Decode(&errorResponse)
+	if err != nil {
+		t.Errorf("Couldn't decode response body into a errorResponse")
+		return
+	}
+
+	if errorResponse.Error != model.TRANSACTION_DOES_NOT_EXIST_ERROR {
+		t.Errorf(`Expected error errorResponse to be "%v", but got "%v"`, model.TRANSACTION_DOES_NOT_EXIST_ERROR, errorResponse.Error)
+	}
+}
