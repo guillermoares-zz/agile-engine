@@ -2,7 +2,7 @@ package tests
 
 import (
 	"fmt"
-	"github.com/guillermoares/agile-engine/backend-golang/model"
+	"github.com/guillermoares/agile-engine/backend-golang/src/model"
 	"io/ioutil"
 	"net/http"
 	"testing"

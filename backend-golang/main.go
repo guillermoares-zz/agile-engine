@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/guillermoares/agile-engine/backend-golang/server"
+	"github.com/guillermoares/agile-engine/backend-golang/src/server"
 	"os"
 	"os/signal"
 )

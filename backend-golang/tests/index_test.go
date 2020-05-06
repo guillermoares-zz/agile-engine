@@ -2,7 +2,7 @@ package tests
 
 import (
 	"encoding/json"
-	"github.com/guillermoares/agile-engine/backend-golang/model"
+	"github.com/guillermoares/agile-engine/backend-golang/src/model"
 	"net/http"
 	"testing"
 )

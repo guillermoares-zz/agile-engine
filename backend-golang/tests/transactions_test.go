@@ -3,8 +3,8 @@ package tests
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/guillermoares/agile-engine/backend-golang/model"
-	"github.com/guillermoares/agile-engine/backend-golang/server/routes"
+	"github.com/guillermoares/agile-engine/backend-golang/src/model"
+	"github.com/guillermoares/agile-engine/backend-golang/src/server/routes"
 	"io/ioutil"
 	"net/http"
 	"testing"
