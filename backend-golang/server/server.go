@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/guillermoares/agile-engine/backend-golang/server/routes"
 	"net"
@@ -12,7 +13,11 @@ func StartServer(host, port string) (*http.Server, chan bool) {
 	router := mux.NewRouter()
 	setRoutes(router)
 
-	server := &http.Server{Handler: router}
+	corsObj := handlers.AllowedOrigins([]string{"*"})
+
+	server := &http.Server{
+		Handler: handlers.CORS(corsObj)(router),
+	}
 
 	ready := make(chan bool)
 

@@ -14,14 +14,19 @@ import (
 )
 
 var HOST = "localhost"
-var PORT = "8000"
+var PORT = "3000"
 
 func SetUp() (func(), http.Client) {
 	global.Account = model.NewAccount()
 	svr, ready := server.StartServer(HOST, PORT)
 
+	// Need this for quick POSTs not to fail with EOF
+	transport := http.DefaultTransport.(*http.Transport)
+	transport.DisableKeepAlives = true
+
 	client := http.Client{
-		Timeout: time.Second,
+		Timeout:   time.Second,
+		Transport: transport,
 	}
 
 	<-ready
@@ -59,5 +64,6 @@ func PostTransaction(t *testing.T, client *http.Client, tType string, amount flo
 		t.Errorf("Error sending request: %v", err)
 		t.FailNow()
 	}
+
 	return response
 }

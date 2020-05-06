@@ -10,7 +10,7 @@ import (
 
 func main() {
 	host := "localhost"
-	port := "8000"
+	port := "3000"
 	svr, ready := server.StartServer(host, port)
 	for <-ready {
 		fmt.Printf("Server listening at port %v\n", port)
