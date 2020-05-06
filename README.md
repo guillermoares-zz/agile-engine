@@ -1,6 +1,6 @@
 # README
 
-### Binaries
+## Binaries
 
 Each server has binaries in `./[backend | backend-golang | frontend]/bin`. There are binaries for win/mac/linux, although I couldn't generate the frontend binary for windows because `pkg` doesn't want to work and `nexe` wants me to compile Node, which seems to take a lot of time :).
 
