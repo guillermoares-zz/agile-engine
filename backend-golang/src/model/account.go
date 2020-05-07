@@ -11,15 +11,17 @@ const (
 )
 
 type Account struct {
-	rwMutex      sync.RWMutex
-	transactions []*Transaction
-	balance      float32
+	rwMutex                sync.RWMutex
+	transactions           []*Transaction
+	indexesByTransactionId map[string]int
+	balance                float32
 }
 
 func NewAccount() *Account {
 	return &Account{
-		balance:      INITIAL_BALANCE,
-		transactions: []*Transaction{},
+		balance:                INITIAL_BALANCE,
+		transactions:           []*Transaction{},
+		indexesByTransactionId: map[string]int{},
 	}
 }
 
@@ -38,10 +40,11 @@ func (account *Account) Transactions() []*Transaction {
 }
 
 func (account *Account) GetTransactionWithId(id string) (*Transaction, error) {
-	for _, transaction := range account.Transactions() {
-		if transaction.Id == id {
-			return transaction, nil
-		}
+	account.rwMutex.RLock()
+	defer account.rwMutex.RUnlock()
+
+	if transactionIndex, ok := account.indexesByTransactionId[id]; ok {
+		return account.transactions[transactionIndex], nil
 	}
 
 	return nil, errors.New(TRANSACTION_DOES_NOT_EXIST_ERROR)
@@ -56,6 +59,7 @@ func (account *Account) Apply(transaction *Transaction) error {
 		return err
 	}
 
+	account.indexesByTransactionId[transaction.Id] = len(account.transactions)
 	account.transactions = append(account.transactions, transaction)
 
 	return nil
