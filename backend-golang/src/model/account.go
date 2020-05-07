@@ -11,20 +11,34 @@ const (
 )
 
 type Account struct {
-	RWMutex      sync.RWMutex   `json:"-"`
-	Balance      float32        `json:"balance"`
-	Transactions []*Transaction `json:"-"`
+	rwMutex      sync.RWMutex
+	transactions []*Transaction
+	balance      float32
 }
 
 func NewAccount() *Account {
 	return &Account{
-		Balance:      INITIAL_BALANCE,
-		Transactions: []*Transaction{},
+		balance:      INITIAL_BALANCE,
+		transactions: []*Transaction{},
 	}
 }
 
-func (account Account) GetTransactionWithId(id string) (*Transaction, error) {
-	for _, transaction := range account.Transactions {
+func (account *Account) Balance() float32 {
+	account.rwMutex.RLock()
+	defer account.rwMutex.RUnlock()
+
+	return account.balance
+}
+
+func (account *Account) Transactions() []*Transaction {
+	account.rwMutex.RLock()
+	defer account.rwMutex.RUnlock()
+
+	return account.transactions
+}
+
+func (account *Account) GetTransactionWithId(id string) (*Transaction, error) {
+	for _, transaction := range account.Transactions() {
 		if transaction.Id == id {
 			return transaction, nil
 		}
@@ -34,15 +48,15 @@ func (account Account) GetTransactionWithId(id string) (*Transaction, error) {
 }
 
 func (account *Account) Apply(transaction *Transaction) error {
-	account.RWMutex.Lock()
-	defer account.RWMutex.Unlock()
+	account.rwMutex.Lock()
+	defer account.rwMutex.Unlock()
 
-	err := transaction.ApplyTo(account)
+	err := transaction.applyTo(account)
 	if err != nil {
 		return err
 	}
 
-	account.Transactions = append(account.Transactions, transaction)
+	account.transactions = append(account.transactions, transaction)
 
 	return nil
 }

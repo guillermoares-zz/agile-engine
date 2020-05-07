@@ -29,16 +29,16 @@ func NewTransaction(tType string, amount float32) *Transaction {
 	}
 }
 
-func (transaction *Transaction) ApplyTo(account *Account) error {
+func (transaction *Transaction) applyTo(account *Account) error {
 	switch transaction.Type {
 	case TRANSACTION_TYPE_CREDIT:
-		account.Balance += transaction.Amount
+		account.balance += transaction.Amount
 	case TRANSACTION_TYPE_DEBIT:
-		if account.Balance < transaction.Amount {
+		if account.balance < transaction.Amount {
 			return errors.New(NOT_ENOUGH_FUNDS_ERROR)
 		}
 
-		account.Balance -= transaction.Amount
+		account.balance -= transaction.Amount
 	default:
 		return errors.New(INVALID_TRANSACTION_TYPE_ERROR)
 	}
