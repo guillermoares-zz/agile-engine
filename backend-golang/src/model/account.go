@@ -11,38 +11,56 @@ const (
 )
 
 type Account struct {
-	RWMutex      sync.RWMutex   `json:"-"`
-	Balance      float32        `json:"balance"`
-	Transactions []*Transaction `json:"-"`
+	rwMutex                sync.RWMutex
+	transactions           []*Transaction
+	indexesByTransactionId map[string]int
+	balance                float32
 }
 
 func NewAccount() *Account {
 	return &Account{
-		Balance:      INITIAL_BALANCE,
-		Transactions: []*Transaction{},
+		balance:                INITIAL_BALANCE,
+		transactions:           []*Transaction{},
+		indexesByTransactionId: map[string]int{},
 	}
 }
 
-func (account Account) GetTransactionWithId(id string) (*Transaction, error) {
-	for _, transaction := range account.Transactions {
-		if transaction.Id == id {
-			return transaction, nil
-		}
+func (account *Account) Balance() float32 {
+	account.rwMutex.RLock()
+	defer account.rwMutex.RUnlock()
+
+	return account.balance
+}
+
+func (account *Account) Transactions() []*Transaction {
+	account.rwMutex.RLock()
+	defer account.rwMutex.RUnlock()
+
+	return account.transactions
+}
+
+func (account *Account) GetTransactionWithId(id string) (*Transaction, error) {
+	account.rwMutex.RLock()
+	defer account.rwMutex.RUnlock()
+
+	if transactionIndex, ok := account.indexesByTransactionId[id]; ok {
+		return account.transactions[transactionIndex], nil
 	}
 
 	return nil, errors.New(TRANSACTION_DOES_NOT_EXIST_ERROR)
 }
 
 func (account *Account) Apply(transaction *Transaction) error {
-	account.RWMutex.Lock()
-	defer account.RWMutex.Unlock()
+	account.rwMutex.Lock()
+	defer account.rwMutex.Unlock()
 
-	err := transaction.ApplyTo(account)
+	err := transaction.applyTo(account)
 	if err != nil {
 		return err
 	}
 
-	account.Transactions = append(account.Transactions, transaction)
+	account.indexesByTransactionId[transaction.Id] = len(account.transactions)
+	account.transactions = append(account.transactions, transaction)
 
 	return nil
 }

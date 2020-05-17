@@ -22,7 +22,7 @@ func TestGetBalance(t *testing.T) {
 		t.Errorf("Expected status code %v, but got %v", http.StatusOK, response.StatusCode)
 	}
 
-	account := &model.Account{}
+	account := &struct{ Balance float32 }{}
 	err = json.NewDecoder(response.Body).Decode(account)
 	if err != nil {
 		t.Errorf("Couldn't decode response body into an Account")
@@ -58,7 +58,7 @@ func TestGetBalanceChangesWithTransactions(t *testing.T) {
 		t.Errorf("Expected status code %v, but got %v", http.StatusOK, response.StatusCode)
 	}
 
-	account := &model.Account{}
+	account := &struct{ Balance float32 }{}
 	err = json.NewDecoder(response.Body).Decode(account)
 	if err != nil {
 		t.Errorf("Couldn't decode response body into an Account")

@@ -6,8 +6,7 @@ import (
 )
 
 func GetAccount(w http.ResponseWriter, r *http.Request) {
-	global.Account.RWMutex.RLock()
-	defer global.Account.RWMutex.RUnlock()
-
-	RespondWithJSON(w, http.StatusOK, global.Account)
+	RespondWithJSON(w, http.StatusOK, struct {
+		Balance float32
+	}{global.Account.Balance()})
 }
