@@ -1,0 +1,22 @@
+.accordion {
+    overflow: auto;
+    max-height: 100%;
+}
+
+.credit-title {
+    color: forestgreen;
+}
+
+.debit-title {
+    color: red;
+}
+
+.transactions-container {
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.main-card .jumbotron {
+    height: 100%;
+    width: 100%;
+}

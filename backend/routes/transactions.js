@@ -13,7 +13,11 @@ const {
 var router = express.Router();
 
 /* GET users listing. */
-router.get('/', (req, res) => {
+router.get('/', async ({query: {delay}}, res) => {
+  // Added this to be able to see the "loading" state in the UI
+  if (delay)
+    await new Promise(res => setInterval(res, delay))
+
   res.status(200).json(Model.Account.history().asJson())
 });
 

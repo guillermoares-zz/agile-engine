@@ -1,0 +1,37 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`App snapshot renders 1`] = `
+<Container
+  className="main-container"
+  fluid="md"
+>
+  <Card
+    body={false}
+    className="text-center main-card"
+  >
+    <CardHeader
+      as="h1"
+    >
+      Transaction History
+    </CardHeader>
+    <CardBody>
+      <TransactionsView
+        isRefreshing={true}
+        transactions={Array []}
+      />
+    </CardBody>
+    <CardFooter>
+      <RefreshButton
+        isRefreshing={true}
+        refreshAction={[Function]}
+      />
+      <br />
+      <br />
+      <StatusInfo
+        kind="info"
+        message="Retrieving transactions..."
+      />
+    </CardFooter>
+  </Card>
+</Container>
+`;
