@@ -2,10 +2,13 @@ package routes
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/guillermoares/agile-engine/backend-golang/src/global"
 	"github.com/guillermoares/agile-engine/backend-golang/src/model"
 	"net/http"
+	"strconv"
+	"time"
 )
 
 const (
@@ -17,7 +20,17 @@ type PostTransactionBody struct {
 	Amount float32 `json:"amount,omitempty"`
 }
 
-func GetTransactions(w http.ResponseWriter, _ *http.Request) {
+func GetTransactions(w http.ResponseWriter, r *http.Request) {
+	// This is just to be able to see the loading screen in the frontend
+	if value, found := r.URL.Query()["delay"]; found {
+		delay, err := strconv.Atoi(value[0])
+		if err != nil {
+			RespondWithError(w, http.StatusBadRequest, fmt.Sprintf("Couldn't parse delay: %v", delay))
+			return
+		}
+		time.Sleep(time.Duration(delay) * time.Millisecond)
+	}
+
 	RespondWithJSON(w, http.StatusOK, global.Account.Transactions())
 }
 
