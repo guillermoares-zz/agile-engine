@@ -44,5 +44,9 @@ These are available under `./frontend`.
 - `npm start`: Runs the server from source code.
 - `npm run build-bins`: Builds the binary files. You'll find them in `./frontend/bin`.
 
+### I'm getting a "findDOMNode is deprecated in StrictMode" error
+
+It seems something's off with the _react-bootstrap_ library `Accordion` at the moment. This error is triggered whenever an `Accordion` item is collapsed. More info in [this thread.](https://github.com/react-bootstrap/react-bootstrap/issues/5075)
+
 
 
